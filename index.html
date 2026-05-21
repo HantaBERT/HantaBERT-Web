@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HantaBERT — Hantavirus Sequence Classifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="brand">HantaBERT</span>
+      <div class="model-status" id="model-status">
+        <span class="status-pip" id="status-pip"></span>
+        <span class="status-label" id="status-label">Checking</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="model-warn" id="model-warn" hidden>
+    <span class="warn-pip" aria-hidden="true"></span>
+    Model loading — predictions unavailable. Checking every 5 s…
+  </div>
+
+  <main class="main">
+
+    <div class="input-panel">
+      <div class="input-panel-inner">
+
+        <div class="seq-header">
+          <span class="seq-label">Sequence Input</span>
+          <span class="seq-count" id="seq-count" aria-live="polite">0 bp</span>
+        </div>
+
+        <div class="seq-wrap">
+          <textarea
+            id="seq"
+            class="seq-textarea"
+            placeholder="Paste a DNA or RNA sequence, or upload a FASTA file..."
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            rows="5"
+          ></textarea>
+          <div class="seq-scanline" aria-hidden="true"></div>
+        </div>
+
+        <div class="seq-error" id="seq-error" hidden></div>
+
+        <div class="panel-actions">
+          <label class="btn btn-ghost" for="fasta-file">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1v7M3 5l3 3 3-3M1 10v.5A.5.5 0 001.5 11h9a.5.5 0 00.5-.5V10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Upload FASTA
+            <input type="file" id="fasta-file" accept=".fasta,.fa,.fna,.txt" hidden>
+          </label>
+
+          <button class="btn-link" id="btn-example" type="button">Try example</button>
+
+          <div class="topn-wrap">
+            <span class="topn-label">Top</span>
+            <div class="topn-stepper" role="group" aria-label="Top predictions">
+              <button class="stepper-btn" id="topn-minus" type="button" aria-label="Fewer">−</button>
+              <span class="stepper-val" id="topn-val" aria-live="polite">3</span>
+              <button class="stepper-btn" id="topn-plus" type="button" aria-label="More">+</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btn-classify" type="button">
+            <span id="btn-label">Classify</span>
+            <span class="btn-chevron" id="btn-chevron" aria-hidden="true">→</span>
+            <span class="btn-spin" id="btn-spin" hidden aria-hidden="true"></span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="api-error" id="api-error" hidden role="alert"></div>
+    <div class="trunc-warn" id="trunc-warn" hidden role="status">
+      Sequence exceeded 512 BPE tokens and was silently truncated. Results reflect the leading portion.
+    </div>
+
+    <div class="results" id="results" hidden aria-live="polite">
+
+      <!-- Species: full-width -->
+      <section class="card card-species" id="card-species">
+        <div class="card-eyebrow">
+          <span class="eyebrow-text">Species</span>
+          <div class="eyebrow-line" aria-hidden="true"></div>
+        </div>
+        <div class="species-body">
+          <div class="species-name" id="species-name"></div>
+          <div class="species-conf" id="species-conf"></div>
+        </div>
+        <div class="species-bar-track"><div class="species-bar-fill" id="species-bar"></div></div>
+        <div class="species-ranked" id="species-ranked" hidden>
+          <button class="ranked-toggle" id="species-toggle" type="button" aria-expanded="false">
+            <svg class="toggle-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M1.5 3.5L5 7l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="species-toggle-text"></span>
+          </button>
+          <div class="ranked-rows" id="species-rows" hidden></div>
+        </div>
+      </section>
+
+      <!-- Host + Geo side by side -->
+      <div class="lower-grid">
+
+        <section class="card card-host" id="card-host">
+          <div class="card-eyebrow">
+            <span class="eyebrow-text">Host</span>
+            <div class="eyebrow-line" aria-hidden="true"></div>
+          </div>
+          <div class="host-grid" id="host-grid"></div>
+        </section>
+
+        <section class="card card-geo" id="card-geo">
+          <div class="card-eyebrow">
+            <span class="eyebrow-text">Geographic Origin</span>
+            <div class="eyebrow-line" aria-hidden="true"></div>
+          </div>
+          <div class="geo-hero">
+            <span class="geo-name" id="geo-name"></span>
+            <span class="geo-conf" id="geo-conf"></span>
+          </div>
+          <div class="map-frame">
+            <svg class="world-map" id="world-map" viewBox="0 0 1000 500"
+              role="img" aria-label="World map of predicted geographic origin"></svg>
+          </div>
+          <div class="geo-ranked" id="geo-ranked" hidden>
+            <button class="ranked-toggle" id="geo-toggle" type="button" aria-expanded="false">
+              <svg class="toggle-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M1.5 3.5L5 7l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span id="geo-toggle-text"></span>
+            </button>
+            <ol class="geo-list" id="geo-list" hidden></ol>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    For research and educational use only. Not for clinical diagnosis or public-health decisions.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

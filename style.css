@@ -1,6 +1,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+
   --bg:           oklch(8% 0.022 160);
   --surface:      oklch(12% 0.022 160);
   --surface-hi:   oklch(16% 0.020 160);
@@ -29,12 +31,55 @@
   --ocean:       oklch(9.5% 0.030 240);
   --land:        oklch(18% 0.020 160);
 
+  --dot:         oklch(28% 0.015 160);
+  --header-bg:   oklch(9.5% 0.022 160 / 0.92);
+  --seq-text:    oklch(85% 0.018 148);
+  --track:       oklch(8% 0.016 160);
+  --green-fg:    oklch(8% 0.018 160);
+
   --ff-display: 'Cormorant Garamond', Georgia, serif;
   --ff-ui:      'IBM Plex Sans', system-ui, sans-serif;
   --ff-mono:    'JetBrains Mono', monospace;
 
   --r: 6px;
   --r-lg: 10px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:           oklch(99% 0.004 160);
+  --surface:      oklch(100% 0 0);
+  --surface-hi:   oklch(96% 0.006 160);
+  --input-bg:     oklch(98.5% 0.004 160);
+  --border:       oklch(88% 0.010 160);
+  --border-hi:    oklch(74% 0.014 160);
+
+  --text-1: oklch(22% 0.020 150);
+  --text-2: oklch(42% 0.018 150);
+  --text-3: oklch(56% 0.014 150);
+
+  --green:      oklch(52% 0.180 148);
+  --green-hi:   oklch(45% 0.190 148);
+  --green-dim:  oklch(60% 0.150 148);
+  --green-bg:   oklch(94% 0.040 148);
+  --green-glow: oklch(52% 0.180 148 / 0.10);
+
+  --warn-bg:    oklch(96% 0.040 80);
+  --warn-edge:  oklch(60% 0.140 80);
+  --warn-text:  oklch(38% 0.110 80);
+  --err-bg:     oklch(96% 0.030 22);
+  --err-edge:   oklch(58% 0.155 22);
+  --err-text:   oklch(42% 0.140 22);
+
+  --ocean:      oklch(95% 0.020 240);
+  --land:       oklch(88% 0.010 160);
+
+  --dot:        oklch(82% 0.010 160);
+  --header-bg:  oklch(99% 0.004 160 / 0.85);
+  --seq-text:   oklch(35% 0.025 148);
+  --track:      oklch(90% 0.010 160);
+  --green-fg:   oklch(100% 0 0);
 }
 
 html { font-size: 16px; -webkit-font-smoothing: antialiased; }
@@ -54,7 +99,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(oklch(28% 0.015 160) 0.8px, transparent 0.8px);
+  background-image: radial-gradient(var(--dot) 0.8px, transparent 0.8px);
   background-size: 22px 22px;
   opacity: 0.35;
   pointer-events: none;
@@ -67,7 +112,7 @@ body::before {
 /* ── Header ───────────────────────────────────────────────────── */
 
 .site-header {
-  background: oklch(9.5% 0.022 160 / 0.92);
+  background: var(--header-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
@@ -137,6 +182,43 @@ body::before {
   letter-spacing: 0.04em;
   color: var(--text-3);
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.theme-toggle:hover {
+  color: var(--text-1);
+  border-color: var(--border-hi);
+  background: var(--surface-hi);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--green-dim);
+  outline-offset: 2px;
+}
+
+.theme-icon { display: inline-block; }
+.theme-icon-moon { display: none; }
+[data-theme="light"] .theme-icon-sun  { display: none; }
+[data-theme="light"] .theme-icon-moon { display: inline-block; }
 
 /* ── Model warning banner ─────────────────────────────────────── */
 
@@ -238,7 +320,7 @@ body::before {
   font-family: var(--ff-mono);
   font-size: 0.8125rem;
   line-height: 1.75;
-  color: oklch(85% 0.018 148);
+  color: var(--seq-text);
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: var(--r);
@@ -403,7 +485,7 @@ body::before {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: oklch(8% 0.018 160);
+  color: var(--green-fg);
   background: var(--green);
   border-color: transparent;
   padding: 9px 22px;
@@ -415,7 +497,7 @@ body::before {
 .btn-primary:hover:not(:disabled) {
   background: var(--green-hi);
   box-shadow: 0 0 30px oklch(83% 0.240 148 / 0.28);
-  color: oklch(8% 0.018 160);
+  color: var(--green-fg);
   border-color: transparent;
 }
 
@@ -432,8 +514,8 @@ body::before {
 .btn-spin {
   width: 12px;
   height: 12px;
-  border: 1.5px solid oklch(8% 0.018 160 / 0.3);
-  border-top-color: oklch(8% 0.018 160);
+  border: 1.5px solid color-mix(in oklab, var(--green-fg) 30%, transparent);
+  border-top-color: var(--green-fg);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   flex-shrink: 0;
@@ -559,7 +641,7 @@ body::before {
 
 .species-bar-track {
   height: 4px;
-  background: oklch(8% 0.016 160);
+  background: var(--track);
   border-radius: 2px;
   overflow: hidden;
   margin-bottom: 16px;

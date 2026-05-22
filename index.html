@@ -7,6 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
   <script defer src="https://stat.faizath.com/script.js" data-website-id="973a0740-1664-413b-8b7d-159e9180cda5" data-domains="hantabert.faizath.com"></script>
 </head>
@@ -15,9 +22,23 @@
   <header class="site-header">
     <div class="header-inner">
       <span class="brand">HantaBERT</span>
-      <div class="model-status" id="model-status">
-        <span class="status-pip" id="status-pip"></span>
-        <span class="status-label" id="status-label">Checking</span>
+      <div class="header-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button"
+                aria-label="Toggle light and dark theme" title="Toggle theme">
+          <svg class="theme-icon theme-icon-sun" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.76 2.76l1.06 1.06M10.18 10.18l1.06 1.06M2.76 11.24l1.06-1.06M10.18 3.82l1.06-1.06"
+                  stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M11.5 8.5A5 5 0 015.5 2.5a5 5 0 106 6z"
+                  stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="model-status" id="model-status">
+          <span class="status-pip" id="status-pip"></span>
+          <span class="status-label" id="status-label">Checking</span>
+        </div>
       </div>
     </div>
   </header>
